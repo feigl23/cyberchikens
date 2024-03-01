@@ -15,14 +15,15 @@ body {
     width: 100%;
     height: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-evenly;
     align-items: center;
     flex-direction: column;
+    position: relative;
 }
 
 .title {
     width: 100%;
-    height: 170px;
+    height: 150px;
     font-size: 4em;
     display: flex;
     justify-content: center;
@@ -57,12 +58,77 @@ body {
     width: 50px;
 
 }
-.second{
+
+.second {
     transform: scale(-1, 1);
 }
-.txt{
+
+.txt {
     margin: 5px 30px;
-    color:#880808;
+    color: #880808;
     font-weight: 700;
-    text-shadow: 5px 5px 0px #88080860 ;
+    text-shadow: 5px 5px 0px #88080880;
+}
+
+.scores {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    width: 100%;
+    max-width: 1240px;
+    margin-top: 20px;
+}
+
+.scores .scores_home,
+.scores .scores_enemy {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+    width: 40%;
+
+}
+
+.scores .point {
+    font-size: 1.2em;
+}
+
+.scores .life {
+    background-color: #00563F;
+    height: 20px;
+    border-radius: 3px;
+    margin-left: 6px;
+}
+
+.gameover {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    font-size: 40pt;
+    color: #880808;
+    text-shadow: 5px 5px 0px #88080840;
+    background-color: rgba(0, 0, 0, .6);
+    max-width: 1300px;
+    padding: 30px 0;
+    text-align: center;
+    width: 100%;
+    font-weight: 700;
+    display: none;
+}
+
+.winner {
+    color: #00563F;
+    text-shadow: 5px 5px 0px #00563F60;
+
+}
+
+.orange {
+    background-color: #FFA500 !important;
+}
+
+.red {
+    background-color: #880808 !important;
 }

@@ -11,13 +11,17 @@ var projectiles = [];
 var players = {};
 var lastshot = 0;
 var myID = 0;
-
+var x = 0;
+var zombiePoint = 100;
+var gamersPoint = 100;
+var interval;
 
 $(document).ready(function () {
     cns = $("#gameStage")[0];
     ctx = cns.getContext("2d");
     zx = cns.width - 138;
     start();
+    updateScoreBoard();
     $(".btn").click(function () {
         socket.emit("move", function (msg) {
             console.log(msg);
@@ -27,17 +31,17 @@ $(document).ready(function () {
         let move = false;
         switch (e.keyCode) {
             case 38: // up
-                y = y - 5;
+                y = y - 10;
                 move = true;
                 break;
             case 40: // down
-                y = y + 5;
+                y = y + 10;
                 move = true;
                 break;
             case 32: // space
                 if ((Date.now() - lastshot) > 1000) {
                     lastshot = Date.now();
-                    let pr = { 'x': 50 + (myID * 170), 'y': y, 'p': myID, 'dir': 1 };
+                    let pr = { 'x': 70 + (myID * 170), 'y': y, 'p': myID, 'dir': 1 };
                     projectiles.push(pr);
                     socket.emit("shoot", pr, function (msg) {
                         console.log(msg);
@@ -70,6 +74,7 @@ socket.on("shoot", function (msg) {
 
 socket.on("start", function (msg) {
     myID = msg.id;
+    x = 50 + (myID * 170)
     console.log("myID", myID, msg);
     for (i in msg.playerpos) {
         if (i != myID)
@@ -84,6 +89,15 @@ socket.on("newplayer", function (msg) {
 socket.on("move", function (msg) {
     console.log(msg);
     players[msg.id] = msg.y;
+});
+socket.on("zombiemove", function (msg) {
+    zy = msg.y;
+});
+
+socket.on("scores", function (msg) {
+    zombiePoint = msg.zombiePoint;
+    gamersPoint = msg.gamersPoint;
+    updateScoreBoard();
 });
 
 function loadGfx() {
@@ -118,17 +132,18 @@ function start() {
 function startAnim() {
     if (loadedassectcount >= assectcount) {
         console.log('startanim');
-        setInterval(animCycle, 1000 / 24);
+        interval = setInterval(animCycle, 1000 / 24);
     }
 }
 
 function animCycle() {
     clearCanvas();
-    draw('chicken', 50 + (myID * 170), y);
+    draw('chicken', x, y);
     Zombie();
     draw('zombie', zx, zy);
     for (i in players) {
         draw('chicken', 50 + (i * 170), players[i]);
+
     }
     todel = [];
     for (let i = 0; i < projectiles.length; i++) {
@@ -141,6 +156,36 @@ function animCycle() {
         }
         if (projectiles[i].x > 1240 || projectiles[i].x < 0) {
             todel.push(i);
+        }
+        if (projectiles[i].dir == -1) {
+
+            if ((x + 55) >= projectiles[i].x && y <= projectiles[i].y && (y + 64) >= projectiles[i].y) {
+                todel.push(i);
+                gamersPoint -= 50;
+                let pr = {};
+                pr.gamersPoint = gamersPoint;
+                pr.zombiePoint = zombiePoint;
+                socket.emit("scores", pr, function (msg) {
+                    updateScoreBoard();
+                });
+            }
+            for (j in players) {
+                if ((50 + (j * 170) + 55) >= projectiles[i].x && players[j] <= projectiles[i].y && (players[j] + 64) >= projectiles[i].y) {
+                    todel.push(i);
+                }
+
+            }
+        } else {
+            if (zx <= projectiles[i].x && zy - 5 <= projectiles[i].y && (zy + 128) >= projectiles[i].y) {
+                todel.push(i);
+                zombiePoint -= 50;
+                let pr = {};
+                pr.gamersPoint = gamersPoint;
+                pr.zombiePoint = zombiePoint;
+                socket.emit("scores", pr, function (msg) {
+                    updateScoreBoard();
+                });
+            }
         }
     }
     for (let i = todel.length - 1; i >= 0; i--) {
@@ -158,7 +203,7 @@ function Zombie() {
     if (zy < 0 + 20) {
         zombieDirection = zombieDirection * -1;
     }
-    if (zy % 120 == 0) {
+    if (zy % 150 == 0) {
         let pr = { 'x': zx + 25, 'y': zy + 10, 'p': 3, 'dir': -1 };
         projectiles.push(pr);
         socket.emit("shoot", pr, function (msg) {
@@ -166,5 +211,38 @@ function Zombie() {
         });
     }
 
+    let pr = { 'y': zy };
+    socket.emit("zombiemove", pr, function (msg) { });
 
-} 
+
+}
+function updateScoreBoard() {
+    $(".scores_home .point").html(gamersPoint);
+    $(".scores_enemy .point").html(zombiePoint);
+    if (gamersPoint < 75 && gamersPoint > 25) {
+        $(".scores_home .life").addClass("orange");
+    }
+    if (gamersPoint < 25) {
+        $(".scores_home .life").addClass("red");
+    }
+    if (zombiePoint < 75 && zombiePoint > 25) {
+        $(".scores_enemy .life").addClass("orange");
+    }
+    if (zombiePoint < 25) {
+        $(".scores_enemy .life").addClass("red");
+    }
+    $(".scores_home .life").css("width", gamersPoint + "%");
+    $(".scores_enemy .life").css("width", zombiePoint + "%");
+    if (gamersPoint == 0) {
+        clearInterval(interval);
+        $(".gameover").fadeIn(200);
+
+    }
+    if (zombiePoint == 0) {
+        clearInterval(interval);
+        $(".gameover").html("YOU WIN!");
+        $(".gameover").addClass("winner");
+        $(".gameover").fadeIn(200);
+
+    }
+}
