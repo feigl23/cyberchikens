@@ -32,7 +32,7 @@ def cstart():
     global playercount
     global playerpos
     sid = request.sid
-    playerpos[playercount] = 10
+    playerpos[playercount] = 30
     emit('start', {"id": playercount,'playerpos': playerpos}, room=sid)
     emit('newplayer', {"id": playercount,'y':0}, broadcast=True, include_self=False)
     playercount = playercount + 1
