@@ -44,6 +44,8 @@ def cstart():
     playerpos[playercount] = 30
     emit('start', {"id": playercount,'playerpos': playerpos}, room=sid)
     emit('newplayer', {"id": playercount,'y':30}, broadcast=True, include_self=False)
+    if playercount == 1:
+            emit('startgame',playercount,broadcast=True, include_self=True)
     playercount = playercount + 1
     if playercount > 1:
         playercount = 0

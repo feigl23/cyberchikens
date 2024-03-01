@@ -39,6 +39,7 @@ body {
     border-style: dashed;
     margin: auto;
     background-color: #00563F75;
+    border-radius: 20px;
 }
 
 .flames {
@@ -89,41 +90,63 @@ body {
     width: 40%;
 
 }
+.scores .scores_enemy {
+    flex-direction: row-reverse;
+}
 
 .scores .point {
-    font-size: 1.2em;
+    font-size: 1.7em;
+    margin: 10px;
 }
 
 .scores .life {
     background-color: #00563F;
-    height: 20px;
+    height: 30px;
     border-radius: 3px;
     margin-left: 6px;
 }
 
-.gameover {
+.gameover,
+.winner,
+.waiting {
     position: absolute;
     left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    top: 55%;
+    transform: translate(-50%, -55%);
     z-index: 100;
     font-size: 40pt;
     color: #880808;
     text-shadow: 5px 5px 0px #88080840;
     background-color: rgba(0, 0, 0, .6);
-    max-width: 1300px;
-    padding: 30px 0;
+    max-width: 1400px;
+    padding: 60px 0;
     text-align: center;
     width: 100%;
     font-weight: 700;
     display: none;
 }
 
+.waiting {
+    color: #888;
+    text-shadow: 5px 5px 0px #555550;
+    display: inline-block;
+}
+
 .winner {
-    color: #00563F;
-    text-shadow: 5px 5px 0px #00563F60;
+    color: #097969;
+    text-shadow: 5px 5px 0px #00563F30;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: row;
 
 }
+
+.miniChickens{
+    background: transparent url("../img/chicken.png") center center repeat;
+    background-size: contain;
+    width: 185px;
+    height: 60px;
+} 
 
 .orange {
     background-color: #FFA500 !important;
@@ -131,4 +154,24 @@ body {
 
 .red {
     background-color: #880808 !important;
+}
+
+.pulseAnimation {
+    transform: scale(1);
+    animation: pulse 2s infinite;
+}
+
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -55%) scale(1);
+    }
+
+    70% {
+        transform: translate(-50%, -55%) scale(1.1);
+    }
+
+    100% {
+        transform: translate(-50%, -55%) scale(1);
+    }
 }

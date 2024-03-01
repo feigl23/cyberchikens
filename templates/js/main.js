@@ -1,32 +1,30 @@
 const socket = io(); //socketio connection to server//
 var ctx, cns;
+var interval;
 var gfx = {};
-var loadedassectcount = 0;
-var assectcount = 3;
-var y = 30;
-var zy = 27;
-var zx = 0;
-var zombieDirection = 1;
-var projectiles = [];
-var players = {};
-var lastshot = 0;
-var myID = 0;
+var loadedAssetCount = 0;
+var assetCount = 4;
+var assets = ["chicken", "laserl", "laserr", "zombie"];
 var x = 0;
+var y = 30;
+var myID = 0;
+var players = {};
+var projectiles = [];
+var lastshot = 0;
+var zx = 0;
+var zy = 27;
+var zombieWidth = 138;
+var zombieDirection = 1;
 var zombiePoint = 100;
 var gamersPoint = 100;
-var interval;
+
 
 $(document).ready(function () {
     cns = $("#gameStage")[0];
     ctx = cns.getContext("2d");
-    zx = cns.width - 138;
+    zx = cns.width - zombieWidth;
     start();
-    updateScoreBoard();
-    $(".btn").click(function () {
-        socket.emit("move", function (msg) {
-            console.log(msg);
-        });
-    });
+
     $(document).keydown(function (e) {
         let move = false;
         switch (e.keyCode) {
@@ -44,9 +42,9 @@ $(document).ready(function () {
                     let pr = { 'x': 70 + (myID * 170), 'y': y, 'p': myID, 'dir': 1 };
                     projectiles.push(pr);
                     socket.emit("shoot", pr, function (msg) {
-                        console.log(msg);
+                        // console.log(msg);
                     });
-                    console.log("shoot");
+                    // console.log("shoot");
                 }
                 break;
         }
@@ -75,7 +73,7 @@ socket.on("shoot", function (msg) {
 socket.on("start", function (msg) {
     myID = msg.id;
     x = 50 + (myID * 170)
-    console.log("myID", myID, msg);
+    // console.log("myID", myID, msg);
     for (i in msg.playerpos) {
         if (i != myID)
             players[i] = msg.playerpos[i];
@@ -87,13 +85,16 @@ socket.on("newplayer", function (msg) {
 });
 
 socket.on("move", function (msg) {
-    console.log(msg);
+    // console.log(msg);
     players[msg.id] = msg.y;
 });
 socket.on("zombiemove", function (msg) {
     zy = msg.y;
 });
-
+socket.on("startgame", function (msg) {
+    $(".waiting").hide();
+    startAnim();
+});
 socket.on("scores", function (msg) {
     zombiePoint = msg.zombiePoint;
     gamersPoint = msg.gamersPoint;
@@ -101,18 +102,13 @@ socket.on("scores", function (msg) {
 });
 
 function loadGfx() {
-    gfx['chicken'] = new Image();
-    gfx['chicken'].src = "img/chicken.png";
-    gfx['laserl'] = new Image();
-    gfx['laserl'].src = "img/laserl.png";
-    gfx['laserr'] = new Image();
-    gfx['laserr'].src = "img/laserr.png";
-    gfx['zombie'] = new Image();
-    gfx['zombie'].src = "img/zombie.png";
+    for (i in assets) {
+        gfx[assets[i]] = new Image();
+        gfx[assets[i]].src = "img/" + assets[i] + ".png";
+    }
     for (g in gfx) {
         gfx[g].onload = function () {
-            loadedassectcount++;
-            startAnim();
+            loadedAssetCount++;
         };
     }
 }
@@ -126,12 +122,12 @@ function clearCanvas() {
 }
 
 function start() {
+    updateScoreBoard();
     loadGfx();
 }
 
 function startAnim() {
-    if (loadedassectcount >= assectcount) {
-        console.log('startanim');
+    if (loadedAssetCount >= assetCount) {
         interval = setInterval(animCycle, 1000 / 24);
     }
 }
@@ -197,7 +193,7 @@ function Zombie() {
         return;
     }
     zy += 3 * zombieDirection;
-    if (zy > cns.height - 138) {
+    if (zy > cns.height - zombieWidth) {
         zombieDirection = zombieDirection * -1;
     }
     if (zy < 0 + 20) {
@@ -207,7 +203,7 @@ function Zombie() {
         let pr = { 'x': zx + 25, 'y': zy + 10, 'p': 3, 'dir': -1 };
         projectiles.push(pr);
         socket.emit("shoot", pr, function (msg) {
-            console.log(msg);
+            // console.log(msg);
         });
     }
 
@@ -219,30 +215,28 @@ function Zombie() {
 function updateScoreBoard() {
     $(".scores_home .point").html(gamersPoint);
     $(".scores_enemy .point").html(zombiePoint);
-    if (gamersPoint < 75 && gamersPoint > 25) {
-        $(".scores_home .life").addClass("orange");
-    }
-    if (gamersPoint < 25) {
-        $(".scores_home .life").addClass("red");
-    }
-    if (zombiePoint < 75 && zombiePoint > 25) {
-        $(".scores_enemy .life").addClass("orange");
-    }
-    if (zombiePoint < 25) {
-        $(".scores_enemy .life").addClass("red");
-    }
+    checkPoints(gamersPoint,".scores_home .life");
+    checkPoints(zombiePoint,".scores_enemy .life");
     $(".scores_home .life").css("width", gamersPoint + "%");
     $(".scores_enemy .life").css("width", zombiePoint + "%");
-    if (gamersPoint == 0) {
-        clearInterval(interval);
-        $(".gameover").fadeIn(200);
-
-    }
+    if (gamersPoint == 0 ) 
+        end(".gameover");
     if (zombiePoint == 0) {
-        clearInterval(interval);
-        $(".gameover").html("YOU WIN!");
-        $(".gameover").addClass("winner");
-        $(".gameover").fadeIn(200);
-
+        end(".winner");     
     }
+}
+
+function checkPoints(point, target) {
+    if (point < 75 && point > 25) {
+        $(target).addClass("orange");
+    }
+    if (point < 25) {
+        $(target).addClass("red");
+    }
+
+}
+function end(target){
+    clearInterval(interval);
+    $(target).css("display", "flex");
+    $(target).fadeIn(200);
 }
