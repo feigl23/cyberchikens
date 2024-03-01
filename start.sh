@@ -1,0 +1,1 @@
+gunicorn --worker-class eventlet -w 1 start:app --bind 0.0.0.0:5000
