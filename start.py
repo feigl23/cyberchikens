@@ -19,9 +19,9 @@ def cmove(data):
     emit('move', data, broadcast=True, include_self=False)
     socketio.sleep(1)
 
-@socketio.on("zombiemove")
+@socketio.on("zombieMove")
 def zmove(data):
-    emit('zombiemove', data, broadcast=True, include_self=False)
+    emit('zombieMove', data, broadcast=True, include_self=False)
     socketio.sleep(1)
 
 @socketio.on("shoot")
@@ -30,10 +30,16 @@ def cshoot(data):
     emit('shoot', data, broadcast=True, include_self=False)
     socketio.sleep(1)
 
-@socketio.on("scores")
+@socketio.on("ZombieScore")
 def scores(data):
     sid = request.sid
-    emit('scores', data, broadcast=True, include_self=False)
+    emit('ZombieScore', data, broadcast=True, include_self=False)
+    socketio.sleep(1)
+
+@socketio.on("ChickenScore")
+def scores(data):
+    sid = request.sid
+    emit('ChickenScore', data, broadcast=True, include_self=False)
     socketio.sleep(1)
 
 @socketio.on("start")
@@ -42,10 +48,10 @@ def cstart():
     global playerpos
     sid = request.sid
     playerpos[playercount] = 30
-    emit('start', {"id": playercount,'playerpos': playerpos}, room=sid)
-    emit('newplayer', {"id": playercount,'y':30}, broadcast=True, include_self=False)
+    emit('inGame', {"id": playercount,'playerpos': playerpos}, room=sid)
+    emit('newPlayer', {"id": playercount,'y':30}, broadcast=True, include_self=False)
     if playercount == 1:
-            emit('startgame',playercount,broadcast=True, include_self=True)
+            emit('startGame',playercount,broadcast=True, include_self=True)
     playercount = playercount + 1
     if playercount > 1:
         playercount = 0

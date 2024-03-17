@@ -105,7 +105,15 @@ body {
     border-radius: 3px;
     margin-left: 6px;
 }
-
+.blanker{
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    position:absolute;
+    background-color: rgba(0, 0, 0, .6);
+    z-index: 90;
+}
 .gameover,
 .winner,
 .waiting {
@@ -116,7 +124,7 @@ body {
     z-index: 100;
     font-size: 40pt;
     color: #880808;
-    text-shadow: 5px 5px 0px #88080840;
+    text-shadow: 3px 3px 0px #88080840;
     background-color: rgba(0, 0, 0, .6);
     max-width: 1400px;
     padding: 60px 0;
@@ -125,16 +133,20 @@ body {
     font-weight: 700;
     display: none;
 }
-
+.gameover{
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: row;
+}
 .waiting {
     color: #888;
-    text-shadow: 5px 5px 0px #555550;
+    text-shadow: 3px 3px 0px #555550;
     display: inline-block;
 }
 
 .winner {
     color: #097969;
-    text-shadow: 5px 5px 0px #00563F30;
+    text-shadow: 3px 3px 0px #00563F30;
     justify-content: space-around;
     align-items: center;
     flex-direction: row;
